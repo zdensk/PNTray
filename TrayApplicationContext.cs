@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Media;
@@ -33,23 +33,31 @@ namespace TrayApp
 
         public TrayApplicationContext()
         {
+            LoadOrCreateConfig();  // Először betöltjük az ID-t és usernevet
+
             trayIcon = new NotifyIcon()
             {
                 Icon = new System.Drawing.Icon("app.ico"),
                 Visible = true,
-                Text = "Private Network Tray v0.1 | zdnsk"
+                Text = "PNChat (tray)"
             };
 
             trayIcon.ContextMenuStrip = new ContextMenuStrip();
-            trayIcon.ContextMenuStrip.Items.Add("Exit", null, OnExit);
+
+            // Menü fejléc létrehozása a szoftver ID-val
+            var headerItem = new ToolStripMenuItem($"PNTv0.1 | zdnsk - {softwareId}");
+            headerItem.Enabled = false;  // Nem kattintható
+            trayIcon.ContextMenuStrip.Items.Add(headerItem);
 
             startupMenuItem = new ToolStripMenuItem("Start with Windows");
             startupMenuItem.Checked = IsStartupEnabled();
             startupMenuItem.CheckOnClick = true;
             startupMenuItem.CheckedChanged += StartupMenuItem_CheckedChanged;
-            trayIcon.ContextMenuStrip.Items.Insert(0, startupMenuItem);
+            trayIcon.ContextMenuStrip.Items.Add(startupMenuItem);
 
-            LoadOrCreateConfig();
+            trayIcon.ContextMenuStrip.Items.Add(new ToolStripSeparator());
+
+            trayIcon.ContextMenuStrip.Items.Add("Exit", null, OnExit);
 
             discovery = new PeerDiscovery();
             server = new ChatServer(12456);
